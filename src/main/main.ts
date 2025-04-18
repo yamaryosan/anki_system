@@ -31,6 +31,27 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
+/**
+ * Anki Connectが起動しているかどうかをチェックする
+ */
+ipcMain.handle('anki-connect-check', async () => {
+  try {
+    const response = await fetch('http://localhost:8765/', {
+      credentials: 'include',
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const data = (await response.json()) as {
+      apiVersion: string;
+    };
+    return data.apiVersion !== undefined;
+  } catch (error) {
+    return false;
+  }
+});
+
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
