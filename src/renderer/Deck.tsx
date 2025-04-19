@@ -1,7 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Card from '@mui/material/Card';
-import { createPortal } from 'react-dom';
 import NoteShowPortal from './NoteShowPortal';
 
 type NoteData = {
@@ -52,7 +51,8 @@ async function fetchNoteData(noteIDs: string[]) {
 export default function Deck() {
   const { deckname } = useParams();
   const [notes, setNotes] = useState<NoteData[]>([]);
-  const [hoveredNoteId, setHoveredNoteId] = useState<string | null>(null);
+  const [clickedNoteId, setClickedNoteId] = useState<string | null>(null);
+  const [showNoteShowPortal, setShowNoteShowPortal] = useState(false);
 
   async function fetchNotes() {
     const noteIDs = await fetchNoteIDsInDeck(deckname!);
@@ -75,23 +75,36 @@ export default function Deck() {
           {notes.map((note) => (
             <Card
               variant="outlined"
-              sx={{ cursor: 'pointer', position: 'relative' }}
+              sx={{
+                cursor: 'pointer',
+                position: 'relative',
+                width: '100%',
+                height: '100%',
+              }}
               key={note.noteId}
-              onMouseEnter={() => setHoveredNoteId(note.noteId)}
-              onMouseLeave={() => setHoveredNoteId(null)}
+              onClick={() => {
+                setClickedNoteId(note.noteId);
+                setShowNoteShowPortal(true);
+              }}
             >
               <div>{note.fields.表面.value}</div>
-              {hoveredNoteId === note.noteId &&
-                createPortal(
-                  <NoteShowPortal
-                    noteId={note.noteId}
-                    front={note.fields.表面.value}
-                    back={note.fields.裏面.value}
-                  />,
-                  document.body,
-                )}
             </Card>
           ))}
+          {showNoteShowPortal && (
+            <NoteShowPortal
+              noteId={clickedNoteId!}
+              front={
+                notes.find((n) => n.noteId === clickedNoteId)?.fields.表面
+                  .value ?? ''
+              }
+              back={
+                notes.find((n) => n.noteId === clickedNoteId)?.fields.裏面
+                  .value ?? ''
+              }
+              setClickedNoteId={setClickedNoteId}
+              setShowNoteShowPortal={setShowNoteShowPortal}
+            />
+          )}
         </div>
       )}
       <Link to="/">戻る</Link>
