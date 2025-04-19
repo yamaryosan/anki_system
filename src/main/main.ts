@@ -52,6 +52,35 @@ ipcMain.handle('anki-connect-check', async () => {
   }
 });
 
+/**
+ * デッキ一覧を取得する
+ */
+ipcMain.handle('fetch-all-decks', async () => {
+  const response = await fetch('http://localhost:8765/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      action: 'deckNames',
+      version: 6,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to get all decks');
+  }
+
+  const data = (await response.json()) as {
+    result: string[];
+    error: string;
+  };
+  if (data.error) {
+    throw new Error(data.error);
+  }
+  return data.result;
+});
+
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
