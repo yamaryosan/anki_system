@@ -12,7 +12,6 @@ export default function AnkiConnectCheck() {
   async function check() {
     const isConnected = await ankiConnectCheck();
     setIsConnected(isConnected);
-    console.log(isConnected);
   }
 
   useEffect(() => {
