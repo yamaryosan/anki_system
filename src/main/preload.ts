@@ -2,7 +2,12 @@
 /* eslint no-unused-vars: off */
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
-export type Channels = 'ipc-example' | 'anki-connect-check' | 'fetch-all-decks';
+export type Channels =
+  | 'ipc-example'
+  | 'anki-connect-check'
+  | 'fetch-all-decks'
+  | 'fetch-note-ids-in-deck'
+  | 'fetch-note-data';
 
 const electronHandler = {
   ipcRenderer: {

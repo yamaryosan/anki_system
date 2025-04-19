@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 async function fetchAllDecks(): Promise<string[]> {
   const decks = await window.electron.ipcRenderer.invoke('fetch-all-decks');
-  if (decks == undefined) {
+  if (decks === undefined) {
     throw new Error('Failed to get all decks');
   }
-  return decks;
+  return decks as string[];
 }
 
 export default function AllDecks() {
@@ -13,9 +14,7 @@ export default function AllDecks() {
 
   useEffect(() => {
     async function fetchDecks() {
-      const decks = await fetchAllDecks();
-      setDecks(decks);
-      console.log(decks);
+      setDecks(await fetchAllDecks());
     }
     fetchDecks();
   }, []);
@@ -25,7 +24,9 @@ export default function AllDecks() {
       <h2>デッキ一覧</h2>
       <ul>
         {decks.map((deck) => (
-          <li key={deck}>{deck}</li>
+          <li key={deck}>
+            <Link to={`/decks/${deck}`}>{deck}</Link>
+          </li>
         ))}
       </ul>
     </>
