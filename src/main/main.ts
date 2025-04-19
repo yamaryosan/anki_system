@@ -82,9 +82,9 @@ ipcMain.handle('fetch-all-decks', async () => {
 });
 
 /**
- * デッキ内のカードID一覧を取得する
+ * デッキ内のノートID一覧を取得する
  */
-ipcMain.handle('fetch-card-ids-in-deck', async (event, deckname: string) => {
+ipcMain.handle('fetch-note-ids-in-deck', async (event, deckname: string) => {
   const response = await fetch('http://localhost:8765/', {
     method: 'POST',
     headers: {
@@ -100,7 +100,7 @@ ipcMain.handle('fetch-card-ids-in-deck', async (event, deckname: string) => {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to get cards in deck');
+    throw new Error('Failed to get notes in deck');
   }
   const data = (await response.json()) as {
     result: string[];
@@ -108,6 +108,58 @@ ipcMain.handle('fetch-card-ids-in-deck', async (event, deckname: string) => {
   };
   if (data.error) {
     throw new Error(data.error);
+  }
+  return data.result;
+});
+
+/**
+ * ノートIDの配列からノートのデータを取得する
+ */
+ipcMain.handle('fetch-note-data', async (event, noteIDs: string[]) => {
+  const response = await fetch('http://localhost:8765/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      action: 'notesInfo',
+      version: 6,
+      params: { notes: noteIDs },
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to get note data');
+  }
+
+  type NoteData = {
+    noteId: string;
+    profile: string;
+    tags: string[] | null;
+    modelName: string;
+    mod: number;
+    cards: number[];
+    fields: {
+      表面: {
+        order: number;
+        value: string;
+      };
+      裏面: {
+        order: number;
+        value: string;
+      };
+    };
+  };
+
+  const data = (await response.json()) as {
+    result: NoteData[];
+    error: string;
+  };
+  if (data.error) {
+    throw new Error(data.error);
+  }
+  if (data == undefined) {
+    throw new Error('Failed to get note data');
   }
   return data.result;
 });

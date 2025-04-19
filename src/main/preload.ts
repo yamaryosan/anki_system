@@ -6,7 +6,8 @@ export type Channels =
   | 'ipc-example'
   | 'anki-connect-check'
   | 'fetch-all-decks'
-  | 'fetch-card-ids-in-deck';
+  | 'fetch-note-ids-in-deck'
+  | 'fetch-note-data';
 
 const electronHandler = {
   ipcRenderer: {
