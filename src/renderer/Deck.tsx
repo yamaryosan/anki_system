@@ -1,6 +1,8 @@
-import { useParams } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import Card from '@mui/material/Card';
+import { createPortal } from 'react-dom';
+import NoteShowPortal from './NoteShowPortal';
 
 type NoteData = {
   noteId: string;
@@ -50,6 +52,7 @@ async function fetchNoteData(noteIDs: string[]) {
 export default function Deck() {
   const { deckname } = useParams();
   const [notes, setNotes] = useState<NoteData[]>([]);
+  const [hoveredNoteId, setHoveredNoteId] = useState<string | null>(null);
 
   async function fetchNotes() {
     const noteIDs = await fetchNoteIDsInDeck(deckname!);
@@ -59,6 +62,7 @@ export default function Deck() {
 
   useEffect(() => {
     fetchNotes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deckname]);
 
   return (
@@ -67,13 +71,28 @@ export default function Deck() {
       {notes.length === 0 ? (
         <div>デッキ内にカードがありません</div>
       ) : (
-        <ul>
+        <div>
           {notes.map((note) => (
-            <li key={note.noteId}>
+            <Card
+              variant="outlined"
+              sx={{ cursor: 'pointer', position: 'relative' }}
+              key={note.noteId}
+              onMouseEnter={() => setHoveredNoteId(note.noteId)}
+              onMouseLeave={() => setHoveredNoteId(null)}
+            >
               <div>{note.fields.表面.value}</div>
-            </li>
+              {hoveredNoteId === note.noteId &&
+                createPortal(
+                  <NoteShowPortal
+                    noteId={note.noteId}
+                    front={note.fields.表面.value}
+                    back={note.fields.裏面.value}
+                  />,
+                  document.body,
+                )}
+            </Card>
           ))}
-        </ul>
+        </div>
       )}
       <Link to="/">戻る</Link>
     </>
