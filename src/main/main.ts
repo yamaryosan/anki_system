@@ -81,6 +81,37 @@ ipcMain.handle('fetch-all-decks', async () => {
   return data.result;
 });
 
+/**
+ * デッキ内のカードID一覧を取得する
+ */
+ipcMain.handle('fetch-card-ids-in-deck', async (event, deckname: string) => {
+  const response = await fetch('http://localhost:8765/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      action: 'findNotes',
+      version: 6,
+      params: {
+        query: `deck:"${deckname}"`,
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to get cards in deck');
+  }
+  const data = (await response.json()) as {
+    result: string[];
+    error: string;
+  };
+  if (data.error) {
+    throw new Error(data.error);
+  }
+  return data.result;
+});
+
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
