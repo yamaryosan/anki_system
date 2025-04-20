@@ -2,8 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useState, ChangeEvent, FormEvent } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { useSnackbar } from 'notistack';
 
 type NewNoteData = {
   deckName: string;
@@ -20,17 +19,8 @@ type NewNoteData = {
   };
 };
 
-async function createNote(newNoteData: NewNoteData) {
-  const result = await window.electron.ipcRenderer.invoke(
-    'create-note',
-    newNoteData,
-  );
-  if (result === 'duplicate') {
-    toast.error('内容が重複していたため、作成できませんでした。');
-  }
-}
-
 export default function NewNote() {
+  const { enqueueSnackbar } = useSnackbar();
   const params = useParams();
   const { deckname } = params;
   const [noteData, setNoteData] = useState<NewNoteData>({
@@ -41,6 +31,19 @@ export default function NewNote() {
       裏面: { order: 1, value: '' },
     },
   });
+
+  async function createNote(newNoteData: NewNoteData) {
+    const result = await window.electron.ipcRenderer.invoke(
+      'create-note',
+      newNoteData,
+    );
+    if (result === 'duplicate') {
+      enqueueSnackbar('内容が重複していたため、作成できませんでした。', {
+        variant: 'error',
+        autoHideDuration: 2000,
+      });
+    }
+  }
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -61,7 +64,6 @@ export default function NewNote() {
   return (
     <div>
       <h2>新規ノート作成</h2>
-      <ToastContainer />
       {deckname === undefined ? (
         <p>デッキ名がありません</p>
       ) : (
