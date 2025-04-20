@@ -223,6 +223,42 @@ ipcMain.handle('create-note', async (event, noteData: NewNoteData) => {
   throw new Error('Failed to create note');
 });
 
+/**
+ * デッキを作成する
+ */
+ipcMain.handle('create-deck', async (event, deckName: string) => {
+  const response = await fetch('http://localhost:8765/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      action: 'createDeck',
+      version: 6,
+      params: {
+        deck: deckName,
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to create deck');
+  }
+
+  const data = (await response.json()) as {
+    result: string;
+    error: string;
+  };
+  console.log(data);
+  if (data.error) {
+    throw new Error(data.error);
+  }
+  if (typeof data.result === 'number') {
+    return 'success';
+  }
+  throw new Error('Failed to create deck');
+});
+
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();

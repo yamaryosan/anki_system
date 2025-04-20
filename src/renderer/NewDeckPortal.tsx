@@ -1,12 +1,16 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import TextField from '@mui/material/TextField';
+import { useSnackbar } from 'notistack';
 
 type props = {
   onClose: () => void;
 };
 
 export default function NewDeckPortal({ onClose }: props) {
+  const [deckName, setDeckName] = useState('');
   const modalRef = useRef<HTMLDivElement>(null);
+  const { enqueueSnackbar } = useSnackbar();
 
   // クリックした場所がモーダルの外側であるか、ESCキーを押されたら閉じる
   useEffect(() => {
@@ -31,6 +35,25 @@ export default function NewDeckPortal({ onClose }: props) {
     };
   }, [onClose]);
 
+  async function createDeck() {
+    if (deckName === '') {
+      enqueueSnackbar('デッキ名を入力してください', {
+        variant: 'error',
+      });
+      return;
+    }
+    const response = await window.electron.ipcRenderer.invoke(
+      'create-deck',
+      deckName,
+    );
+    if (response === 'success') {
+      enqueueSnackbar('デッキを作成しました', {
+        variant: 'success',
+      });
+      onClose();
+    }
+  }
+
   return createPortal(
     <div
       style={{
@@ -42,6 +65,14 @@ export default function NewDeckPortal({ onClose }: props) {
     >
       <div ref={modalRef}>
         <h3>新規デッキ作成</h3>
+        <TextField
+          label="デッキ名"
+          value={deckName}
+          onChange={(e) => setDeckName(e.target.value)}
+        />
+        <button type="button" onClick={createDeck}>
+          作成
+        </button>
         <button type="button" onClick={onClose}>
           閉じる
         </button>
