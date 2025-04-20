@@ -9,6 +9,7 @@ type props = {
   setClickedNoteId: (clickedNoteId: string | null) => void;
 };
 
+// HTML形式のテキストをデコードする
 function decodeHtmlEntities(str: string) {
   const parser = new DOMParser();
   const decoded = parser.parseFromString(str, 'text/html').body.textContent;
