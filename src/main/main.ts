@@ -47,7 +47,7 @@ ipcMain.handle('anki-connect-check', async () => {
       apiVersion: string;
     };
     return data.apiVersion !== undefined;
-  } catch (error) {
+  } catch {
     return false;
   }
 });
@@ -158,10 +158,69 @@ ipcMain.handle('fetch-note-data', async (event, noteIDs: string[]) => {
   if (data.error) {
     throw new Error(data.error);
   }
-  if (data == undefined) {
+  if (data.result === undefined) {
     throw new Error('Failed to get note data');
   }
   return data.result;
+});
+
+type NewNoteData = {
+  deckName: string;
+  modelName: string;
+  fields: {
+    表面: {
+      order: number;
+      value: string;
+    };
+    裏面: {
+      order: number;
+      value: string;
+    };
+  };
+};
+
+/**
+ * ノートを作成する
+ */
+ipcMain.handle('create-note', async (event, noteData: NewNoteData) => {
+  const response = await fetch('http://localhost:8765/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      action: 'addNote',
+      version: 6,
+      params: {
+        note: {
+          deckName: noteData.deckName,
+          modelName: noteData.modelName,
+          fields: {
+            表面: noteData.fields.表面.value,
+            裏面: noteData.fields.裏面.value,
+          },
+          options: {
+            allowDuplicate: false,
+          },
+        },
+      },
+    }),
+  });
+
+  const data = (await response.json()) as {
+    result: string;
+    error: string;
+  };
+  if (data.error === 'cannot create note because it is a duplicate') {
+    return 'duplicate';
+  }
+  if (data.error) {
+    throw new Error(data.error);
+  }
+  if (typeof data.result === 'number') {
+    return 'success';
+  }
+  throw new Error('Failed to create note');
 });
 
 if (process.env.NODE_ENV === 'production') {

@@ -107,6 +107,7 @@ export default function Deck() {
           )}
         </div>
       )}
+      <Link to={`/decks/${deckname}/new`}>新規ノート作成</Link>
       <Link to="/">戻る</Link>
     </>
   );
