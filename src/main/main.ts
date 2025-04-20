@@ -217,7 +217,10 @@ ipcMain.handle('create-note', async (event, noteData: NewNoteData) => {
   if (data.error) {
     throw new Error(data.error);
   }
-  return data.result;
+  if (typeof data.result === 'number') {
+    return 'success';
+  }
+  throw new Error('Failed to create note');
 });
 
 if (process.env.NODE_ENV === 'production') {

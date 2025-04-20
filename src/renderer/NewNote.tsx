@@ -43,13 +43,26 @@ export default function NewNote() {
         autoHideDuration: 2000,
       });
     }
+    if (result === 'success') {
+      enqueueSnackbar('ノートを作成しました。', {
+        variant: 'success',
+        autoHideDuration: 2000,
+      });
+    }
   }
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     await createNote(noteData);
+    setNoteData({
+      deckName: deckname ?? '',
+      modelName: '基本',
+      fields: {
+        表面: { order: 0, value: '' },
+        裏面: { order: 1, value: '' },
+      },
+    });
   };
-
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setNoteData((prev) => ({
