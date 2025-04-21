@@ -52,7 +52,7 @@ export default function Deck() {
   const { deckname } = useParams();
   const [notes, setNotes] = useState<NoteData[]>([]);
   const [clickedNoteId, setClickedNoteId] = useState<string | null>(null);
-  const [showNoteShowPortal, setShowNoteShowPortal] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   async function fetchNotes() {
     const noteIDs = await fetchNoteIDsInDeck(deckname!);
@@ -84,13 +84,13 @@ export default function Deck() {
               key={note.noteId}
               onClick={() => {
                 setClickedNoteId(note.noteId);
-                setShowNoteShowPortal(true);
+                setIsOpen(true);
               }}
             >
               <div>{note.fields.表面.value}</div>
             </Card>
           ))}
-          {showNoteShowPortal && (
+          {isOpen && (
             <NoteShowPortal
               noteId={clickedNoteId!}
               front={
@@ -102,7 +102,7 @@ export default function Deck() {
                   .value ?? ''
               }
               setClickedNoteId={setClickedNoteId}
-              setShowNoteShowPortal={setShowNoteShowPortal}
+              onClose={() => setIsOpen(false)}
             />
           )}
         </div>

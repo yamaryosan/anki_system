@@ -1,12 +1,13 @@
 import { Card, TextField, Button } from '@mui/material';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useSnackbar } from 'notistack';
 
 type props = {
   noteId: string;
   front: string;
   back: string;
-  setShowNoteShowPortal: (showNoteShowPortal: boolean) => void;
   setClickedNoteId: (clickedNoteId: string | null) => void;
+  onClose: () => void;
 };
 
 // HTML形式のテキストをデコードする
@@ -21,11 +22,37 @@ export default function NoteShowPortal({
   noteId,
   front,
   back,
-  setShowNoteShowPortal,
   setClickedNoteId,
+  onClose,
 }: props) {
   const [newFront, setNewFront] = useState(front);
   const [newBack, setNewBack] = useState(back);
+
+  const modalRef = useRef<HTMLDivElement>(null);
+  const { enqueueSnackbar } = useSnackbar();
+
+  // クリックした場所がモーダルの外側であるか、ESCキーを押されたら閉じる
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
+        onClose();
+      }
+    };
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscapeKey);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [onClose]);
 
   useEffect(() => {
     setNewFront(front);
@@ -34,14 +61,39 @@ export default function NoteShowPortal({
 
   // 閉じるボタンを押したとき
   const handleClose = () => {
-    setShowNoteShowPortal(false);
+    onClose();
     setClickedNoteId(null);
   };
 
+  async function updateNote() {
+    const response = await window.electron.ipcRenderer.invoke(
+      'update-note',
+      noteId,
+      {
+        fields: {
+          表面: {
+            order: 0,
+            value: newFront,
+          },
+          裏面: {
+            order: 1,
+            value: newBack,
+          },
+        },
+      },
+    );
+    console.log(response);
+  }
+
   // 保存ボタンを押したとき
-  const handleSave = () => {
+  const handleSave = async () => {
     // データを保存
-    // ポートルを閉じる
+    await updateNote();
+    enqueueSnackbar('保存しました', {
+      variant: 'success',
+    });
+    // ポータルを閉じる
+    onClose();
   };
 
   return (
@@ -64,14 +116,14 @@ export default function NoteShowPortal({
       <TextField
         label="表面"
         multiline
-        rows={10}
+        rows={5}
         value={decodeHtmlEntities(newFront)}
         onChange={(e) => setNewFront(e.target.value)}
       />
       <TextField
         label="裏面"
         multiline
-        rows={10}
+        rows={5}
         value={decodeHtmlEntities(newBack)}
         onChange={(e) => setNewBack(e.target.value)}
       />
