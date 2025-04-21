@@ -9,7 +9,8 @@ export type Channels =
   | 'fetch-note-ids-in-deck'
   | 'fetch-note-data'
   | 'create-note'
-  | 'create-deck';
+  | 'create-deck'
+  | 'update-note';
 
 const electronHandler = {
   ipcRenderer: {
