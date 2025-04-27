@@ -8,6 +8,7 @@ type props = {
   back: string;
   setClickedNoteId: (clickedNoteId: string | null) => void;
   onClose: () => void;
+  onSave: () => void;
 };
 
 // HTML形式のテキストをデコードする
@@ -24,6 +25,7 @@ export default function NoteShowPortal({
   back,
   setClickedNoteId,
   onClose,
+  onSave,
 }: props) {
   const [newFront, setNewFront] = useState(front);
   const [newBack, setNewBack] = useState(back);
@@ -94,6 +96,8 @@ export default function NoteShowPortal({
     });
     // ポータルを閉じる
     onClose();
+    // データを更新
+    onSave();
   };
 
   return (

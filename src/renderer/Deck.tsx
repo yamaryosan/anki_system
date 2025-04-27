@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Card from '@mui/material/Card';
+import useSWR from 'swr';
 import NoteShowPortal from './NoteShowPortal';
 
 type NoteData = {
@@ -50,20 +51,31 @@ async function fetchNoteData(noteIDs: string[]) {
 
 export default function Deck() {
   const { deckname } = useParams();
-  const [notes, setNotes] = useState<NoteData[]>([]);
   const [clickedNoteId, setClickedNoteId] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
   async function fetchNotes() {
     const noteIDs = await fetchNoteIDsInDeck(deckname!);
     const noteData = await fetchNoteData(noteIDs);
-    setNotes(noteData);
+    return noteData;
   }
 
   useEffect(() => {
     fetchNotes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deckname]);
+
+  const fetcher = async () => {
+    const noteIDs = await fetchNoteIDsInDeck(deckname!);
+    const noteData = await fetchNoteData(noteIDs);
+    return noteData;
+  };
+
+  const { data: notes, mutate } = useSWR(`/notes/${deckname}`, fetcher);
+
+  if (notes === undefined) {
+    return <div>データを読み込んでいます...</div>;
+  }
 
   return (
     <>
@@ -103,6 +115,7 @@ export default function Deck() {
               }
               setClickedNoteId={setClickedNoteId}
               onClose={() => setIsOpen(false)}
+              onSave={() => mutate()}
             />
           )}
         </div>
