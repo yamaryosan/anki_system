@@ -67,28 +67,35 @@ export default function NoteShowPortal({
     setClickedNoteId(null);
   };
 
+  // カードの内容を更新する
   async function updateNote() {
-    const response = await window.electron.ipcRenderer.invoke(
-      'update-note',
-      noteId,
-      {
-        fields: {
-          表面: {
-            order: 0,
-            value: newFront,
-          },
-          裏面: {
-            order: 1,
-            value: newBack,
-          },
+    await window.electron.ipcRenderer.invoke('update-note', noteId, {
+      fields: {
+        表面: {
+          order: 0,
+          value: newFront,
+        },
+        裏面: {
+          order: 1,
+          value: newBack,
         },
       },
-    );
-    console.log(response);
+    });
   }
 
   // 保存ボタンを押したとき
   const handleSave = async () => {
+    // データが変更されていない場合は保存しない
+    if (newFront === front && newBack === back) {
+      return;
+    }
+    // 表面あるいは裏面が空の場合は保存しない
+    if (newFront === '' || newBack === '') {
+      enqueueSnackbar('カードの内容が空です', {
+        variant: 'error',
+      });
+      return;
+    }
     // データを保存
     await updateNote();
     enqueueSnackbar('保存しました', {
