@@ -259,6 +259,37 @@ ipcMain.handle('create-deck', async (event, deckName: string) => {
   throw new Error('Failed to create deck');
 });
 
+/**
+ * ノートを更新する
+ */
+ipcMain.handle(
+  'update-note',
+  async (event, noteId: string, noteData: NewNoteData) => {
+    const response = await fetch('http://localhost:8765/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'updateNote',
+        version: 6,
+        params: {
+          note: {
+            id: noteId,
+            fields: {
+              表面: noteData.fields.表面.value,
+              裏面: noteData.fields.裏面.value,
+            },
+          },
+        },
+      }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to update note');
+    }
+    return 'success';
+  },
+);
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();

@@ -1,7 +1,8 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import Card from '@mui/material/Card';
+import useSWR from 'swr';
 import NoteShowPortal from './NoteShowPortal';
+import Note from './Note';
 
 type NoteData = {
   noteId: string;
@@ -50,20 +51,31 @@ async function fetchNoteData(noteIDs: string[]) {
 
 export default function Deck() {
   const { deckname } = useParams();
-  const [notes, setNotes] = useState<NoteData[]>([]);
   const [clickedNoteId, setClickedNoteId] = useState<string | null>(null);
-  const [showNoteShowPortal, setShowNoteShowPortal] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   async function fetchNotes() {
     const noteIDs = await fetchNoteIDsInDeck(deckname!);
     const noteData = await fetchNoteData(noteIDs);
-    setNotes(noteData);
+    return noteData;
   }
 
   useEffect(() => {
     fetchNotes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deckname]);
+
+  const fetcher = async () => {
+    const noteIDs = await fetchNoteIDsInDeck(deckname!);
+    const noteData = await fetchNoteData(noteIDs);
+    return noteData;
+  };
+
+  const { data: notes, mutate } = useSWR(`/notes/${deckname}`, fetcher);
+
+  if (notes === undefined) {
+    return <div>データを読み込んでいます...</div>;
+  }
 
   return (
     <>
@@ -73,24 +85,14 @@ export default function Deck() {
       ) : (
         <div>
           {notes.map((note) => (
-            <Card
-              variant="outlined"
-              sx={{
-                cursor: 'pointer',
-                position: 'relative',
-                width: '100%',
-                height: '100%',
-              }}
-              key={note.noteId}
-              onClick={() => {
-                setClickedNoteId(note.noteId);
-                setShowNoteShowPortal(true);
-              }}
-            >
-              <div>{note.fields.表面.value}</div>
-            </Card>
+            <Note
+              noteId={note.noteId}
+              front={note.fields.表面.value}
+              setClickedNoteId={setClickedNoteId}
+              setIsOpen={setIsOpen}
+            />
           ))}
-          {showNoteShowPortal && (
+          {isOpen && (
             <NoteShowPortal
               noteId={clickedNoteId!}
               front={
@@ -102,7 +104,8 @@ export default function Deck() {
                   .value ?? ''
               }
               setClickedNoteId={setClickedNoteId}
-              setShowNoteShowPortal={setShowNoteShowPortal}
+              onClose={() => setIsOpen(false)}
+              onSave={() => mutate()}
             />
           )}
         </div>
