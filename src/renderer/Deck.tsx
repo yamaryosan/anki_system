@@ -1,8 +1,8 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import Card from '@mui/material/Card';
 import useSWR from 'swr';
 import NoteShowPortal from './NoteShowPortal';
+import Note from './Note';
 
 type NoteData = {
   noteId: string;
@@ -85,22 +85,12 @@ export default function Deck() {
       ) : (
         <div>
           {notes.map((note) => (
-            <Card
-              variant="outlined"
-              sx={{
-                cursor: 'pointer',
-                position: 'relative',
-                width: '100%',
-                height: '100%',
-              }}
-              key={note.noteId}
-              onClick={() => {
-                setClickedNoteId(note.noteId);
-                setIsOpen(true);
-              }}
-            >
-              <div>{note.fields.表面.value}</div>
-            </Card>
+            <Note
+              noteId={note.noteId}
+              front={note.fields.表面.value}
+              setClickedNoteId={setClickedNoteId}
+              setIsOpen={setIsOpen}
+            />
           ))}
           {isOpen && (
             <NoteShowPortal
