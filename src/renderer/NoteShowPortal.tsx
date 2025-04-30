@@ -100,10 +100,10 @@ export default function NoteShowPortal({
 
   // シンタックスハイライト時の言語
   const [frontLanguage, setFrontLanguage] = useState<string>(
-    isFrontHighlight ? (getCodeLanguage(front) ?? 'typescript') : '',
+    isFrontHighlight ? (getCodeLanguage(front) ?? 'typescript') : 'c',
   );
   const [backLanguage, setBackLanguage] = useState<string>(
-    isBackHighlight ? (getCodeLanguage(back) ?? 'typescript') : '',
+    isBackHighlight ? (getCodeLanguage(back) ?? 'typescript') : 'c',
   );
 
   // コードのシンタックスハイライトを行う際に付与する文字列
@@ -210,6 +210,9 @@ export default function NoteShowPortal({
       noteDataWithHighlight.fields.表面.value === front &&
       noteDataWithHighlight.fields.裏面.value === back
     ) {
+      enqueueSnackbar('内容が変更されていません', {
+        variant: 'error',
+      });
       return;
     }
     // 表面あるいは裏面が空の場合は保存しない
@@ -217,7 +220,7 @@ export default function NoteShowPortal({
       noteDataWithHighlight.fields.表面.value === '' ||
       noteDataWithHighlight.fields.裏面.value === ''
     ) {
-      enqueueSnackbar('カードの内容が空です', {
+      enqueueSnackbar('内容が空です', {
         variant: 'error',
       });
       return;
