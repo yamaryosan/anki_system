@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, FormEvent } from 'react';
 import { useSnackbar } from 'notistack';
 import SwitchCodeAndSentenceButton from './SwitchCodeAndSentenceButton';
 import LanguageSelectBox from './LanguageSelectBox';
+import DeleteConfirmPortal from './DeleteConfirmPortal';
 
 type props = {
   noteId: string;
@@ -84,6 +85,9 @@ export default function NoteShowPortal({
 }: props) {
   const modalRef = useRef<HTMLDivElement>(null);
   const { enqueueSnackbar } = useSnackbar();
+
+  // 削除モーダルの表示
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // ノートの内容
   const [noteData, setNoteData] = useState<NewNoteData>({
@@ -307,7 +311,22 @@ export default function NoteShowPortal({
         <Button variant="contained" color="primary" type="submit">
           保存
         </Button>
+        <Button
+          variant="contained"
+          color="error"
+          onClick={() => setIsDeleteModalOpen(true)}
+        >
+          削除
+        </Button>
       </form>
+      {isDeleteModalOpen && (
+        <DeleteConfirmPortal
+          noteId={noteId}
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          onSave={onSave}
+        />
+      )}
     </Card>
   );
 }

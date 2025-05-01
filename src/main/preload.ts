@@ -10,7 +10,8 @@ export type Channels =
   | 'fetch-note-data'
   | 'create-note'
   | 'create-deck'
-  | 'update-note';
+  | 'update-note'
+  | 'delete-note';
 
 const electronHandler = {
   ipcRenderer: {
