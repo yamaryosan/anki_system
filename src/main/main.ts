@@ -290,6 +290,35 @@ ipcMain.handle(
     return 'success';
   },
 );
+
+/**
+ * ノートを削除する
+ */
+ipcMain.handle('delete-note', async (event, noteId: string) => {
+  const response = await fetch('http://localhost:8765/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      action: 'deleteNotes',
+      version: 6,
+      params: {
+        notes: [noteId],
+      },
+    }),
+  });
+  const data = (await response.json()) as {
+    result: string;
+    error: string;
+  };
+  console.log(data);
+  if (data.error) {
+    throw new Error(data.error);
+  }
+  return 'success';
+});
+
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
