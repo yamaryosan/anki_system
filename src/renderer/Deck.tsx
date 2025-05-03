@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import useSWR from 'swr';
+import ExportButton from './ExportButton';
 import NoteShowPortal from './NoteShowPortal';
 import Note from './Note';
 
@@ -77,6 +78,27 @@ export default function Deck() {
     return <div>データを読み込んでいます...</div>;
   }
 
+  // エクスポート
+  const handleExport = () => {
+    const noteData = notes.map((note) => ({
+      表面: note.fields.表面.value,
+      裏面: note.fields.裏面.value,
+    }));
+    // ファイル名を作成
+    const fileName = `${deckname}.json`;
+    // ファイルを作成
+    const file = new File([JSON.stringify(noteData)], fileName, {
+      type: 'application/json',
+    });
+    // ファイルをダウンロード
+    const url = URL.createObjectURL(file);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <>
       <h2>デッキ: {deckname}</h2>
@@ -112,6 +134,7 @@ export default function Deck() {
       )}
       <Link to={`/decks/${deckname}/new`}>新規ノート作成</Link>
       <Link to="/">戻る</Link>
+      <ExportButton handleExport={handleExport} />
     </>
   );
 }
