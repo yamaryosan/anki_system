@@ -319,6 +319,60 @@ ipcMain.handle('delete-note', async (event, noteId: string) => {
   return 'success';
 });
 
+type Note = {
+  表面: string;
+  裏面: string;
+};
+
+function isAllNumbers(arr: any[]): boolean {
+  return arr.every((item) => typeof item === 'number');
+}
+
+/**
+ * デッキをインポートする
+ */
+ipcMain.handle('import-deck', async (event, deck: string, notes: Note[]) => {
+  const response = await fetch('http://localhost:8765/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      action: 'addNotes',
+      version: 6,
+      params: {
+        notes: notes.map((note) => ({
+          deckName: deck,
+          modelName: '基本',
+          fields: {
+            表面: note.表面,
+            裏面: note.裏面,
+          },
+        })),
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to import deck');
+  }
+
+  const data = (await response.json()) as {
+    result: string[];
+    error: string[];
+  };
+  if (data.error?.includes('cannot create note because it is a duplicate')) {
+    return 'duplicate';
+  }
+  if (isAllNumbers(data.result)) {
+    return 'success';
+  }
+  if (data.error) {
+    throw new Error(data.error.join(', '));
+  }
+  throw new Error('Failed to import deck');
+});
+
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
