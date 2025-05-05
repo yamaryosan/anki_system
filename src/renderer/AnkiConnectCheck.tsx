@@ -9,19 +9,18 @@ async function ankiConnectCheck(): Promise<boolean> {
 export default function AnkiConnectCheck() {
   const [isConnected, setIsConnected] = useState(false);
 
-  async function check() {
-    const isConnected = await ankiConnectCheck();
-    setIsConnected(isConnected);
-  }
-
   useEffect(() => {
+    const check = async () => {
+      const isC = await ankiConnectCheck();
+      setIsConnected(isC);
+    };
     check();
   }, []);
 
   return (
     <>
       {isConnected ? 'Connected' : 'Not connected'}
-      <button onClick={check}>Check</button>
+      <button type="button">Check</button>
     </>
   );
 }
