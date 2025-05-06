@@ -12,15 +12,29 @@ export default function Home() {
   return (
     <>
       <AnkiConnectCheck />
-      <AllDecks />
-      <Button onClick={() => setIsOpen(true)} disabled={isOpen}>
+      <Button
+        variant="contained"
+        sx={{ padding: '10px 20px' }}
+        onClick={() => setIsOpen(true)}
+        disabled={isOpen}
+      >
         新規デッキ作成
       </Button>
-      {isOpen && <NewDeckPortal onClose={() => setIsOpen(false)} />}
-      <Button onClick={() => setIsImportOpen(true)} disabled={isImportOpen}>
-        デッキをインポート
-      </Button>
-      {isImportOpen && <ImportPortal onClose={() => setIsImportOpen(false)} />}
+      <AllDecks />
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+        {isOpen && <NewDeckPortal onClose={() => setIsOpen(false)} />}
+        <Button
+          variant="contained"
+          sx={{ padding: '10px 20px' }}
+          onClick={() => setIsImportOpen(true)}
+          disabled={isImportOpen}
+        >
+          デッキをインポート
+        </Button>
+        {isImportOpen && (
+          <ImportPortal onClose={() => setIsImportOpen(false)} />
+        )}
+      </div>
     </>
   );
 }
