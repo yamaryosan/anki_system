@@ -127,10 +127,12 @@ export default function NoteShowPortal({
   // クリックした場所がモーダルの外側であるか、ESCキーを押されたら閉じる
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        modalRef.current &&
-        !modalRef.current.contains(event.target as Node)
-      ) {
+      const target = event.target as Node;
+
+      const isInsideModal =
+        modalRef.current?.contains(target) ||
+        document.getElementById('delete-confirm-portal')?.contains(target);
+      if (!isInsideModal) {
         onClose();
       }
     };
@@ -349,7 +351,10 @@ export default function NoteShowPortal({
         <DeleteConfirmPortal
           noteId={noteId}
           isOpen={isDeleteModalOpen}
-          onClose={() => setIsDeleteModalOpen(false)}
+          onClose={() => {
+            setIsDeleteModalOpen(false);
+            onClose();
+          }}
           onSave={onSave}
         />
       )}
