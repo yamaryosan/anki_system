@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSnackbar } from 'notistack';
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 import DeckSelectBox from './DeckSelectBox';
 
 type props = {
@@ -119,6 +121,21 @@ export default function ImportPortal({ onClose }: props) {
         alignItems: 'center',
       }}
     >
+      <IconButton
+        onClick={onClose}
+        style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          border: 'none',
+          background: 'transparent',
+          fontSize: '24px',
+          cursor: 'pointer',
+        }}
+        aria-label="モーダルを閉じる"
+      >
+        <CloseIcon />
+      </IconButton>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <h3>デッキをインポート</h3>
         <input type="file" accept=".json" />
