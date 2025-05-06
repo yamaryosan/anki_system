@@ -1,6 +1,5 @@
 import Button from '@mui/material/Button';
 import { useState, useEffect } from 'react';
-import AnkiConnectCheckButton from './AnkiConnectCheckButton';
 import AnkiConnectCheckPortal from './AnkiConnectCheckPortal';
 import AllDecks from './AllDecks';
 import ImportPortal from './ImportPortal';
@@ -36,7 +35,6 @@ export default function Home() {
 
   return (
     <>
-      <AnkiConnectCheckButton />
       <Button
         variant="contained"
         sx={{ padding: '10px 20px' }}
@@ -46,7 +44,7 @@ export default function Home() {
         新規デッキ作成
       </Button>
       <AllDecks />
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+      <div>
         {isOpen && <NewDeckPortal onClose={() => setIsOpen(false)} />}
         <Button
           variant="contained"
