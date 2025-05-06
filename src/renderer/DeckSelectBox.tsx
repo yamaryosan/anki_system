@@ -16,6 +16,13 @@ export default function DeckSelectBox({
       <select
         value={selectedDeck}
         onChange={(e) => setSelectedDeck(e.target.value)}
+        style={{
+          width: '100%',
+          height: '40px',
+          borderRadius: '5px',
+          border: '1px solid #ccc',
+          padding: '0 10px',
+        }}
       >
         {decks.map((deck) => (
           <option key={uuidv4()}>{deck}</option>
