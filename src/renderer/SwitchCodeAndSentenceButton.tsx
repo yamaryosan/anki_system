@@ -15,7 +15,7 @@ export default function SwitchCodeAndSentenceButton({
       color="primary"
       onClick={() => onChange(!isHighlight)}
     >
-      {isHighlight ? '文章化' : 'コード化'}
+      {isHighlight ? '文章に変換' : 'コードに変換'}
     </Button>
   );
 }
