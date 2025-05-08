@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import Button from '@mui/material/Button';
+import { v4 as uuidv4 } from 'uuid';
 import ExportButton from './ExportButton';
 import NoteShowPortal from './NoteShowPortal';
 import Note from './Note';
@@ -112,6 +113,7 @@ export default function Deck() {
         <div>
           {notes.map((note) => (
             <Note
+              key={uuidv4()}
               noteId={note.noteId}
               front={note.fields.表面.value}
               setClickedNoteId={setClickedNoteId}
@@ -136,9 +138,11 @@ export default function Deck() {
           )}
         </div>
       )}
-      <Button variant="contained" color="primary" component={Link} to="/">
-        戻る
-      </Button>
+      {notes.length >= 10 && (
+        <Button variant="contained" color="primary" component={Link} to="/">
+          戻る
+        </Button>
+      )}
       <Button
         variant="contained"
         color="primary"
