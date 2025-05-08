@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import useSWR from 'swr';
 import styled from 'styled-components';
 
 async function fetchAllDecks(): Promise<string[]> {
@@ -28,13 +29,11 @@ const StyledLink = styled(Link)`
 `;
 
 export default function AllDecks() {
-  const [decks, setDecks] = useState<string[]>([]);
+  const { data: decks, mutate } = useSWR('/decks', fetchAllDecks);
 
   useEffect(() => {
-    async function fetchDecks() {
-      setDecks(await fetchAllDecks());
-    }
-    fetchDecks();
+    mutate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -46,7 +45,7 @@ export default function AllDecks() {
           padding: '10px',
         }}
       >
-        {decks.map((deck) => (
+        {decks?.map((deck) => (
           <li
             key={deck}
             style={{

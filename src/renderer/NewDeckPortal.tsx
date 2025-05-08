@@ -5,15 +5,25 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import TextField from '@mui/material/TextField';
 import { useSnackbar } from 'notistack';
+import useSWR from 'swr';
 
 type props = {
   onClose: () => void;
 };
 
+async function fetchAllDecks(): Promise<string[]> {
+  const decks = await window.electron.ipcRenderer.invoke('fetch-all-decks');
+  if (decks === undefined) {
+    throw new Error('Failed to get all decks');
+  }
+  return decks as string[];
+}
+
 export default function NewDeckPortal({ onClose }: props) {
   const [deckName, setDeckName] = useState('');
   const modalRef = useRef<HTMLDivElement>(null);
   const { enqueueSnackbar } = useSnackbar();
+  const { mutate } = useSWR('/decks', fetchAllDecks);
 
   // クリックした場所がモーダルの外側であるか、ESCキーを押されたら閉じる
   useEffect(() => {
@@ -54,6 +64,7 @@ export default function NewDeckPortal({ onClose }: props) {
         variant: 'success',
       });
       onClose();
+      mutate();
     }
   }
 
