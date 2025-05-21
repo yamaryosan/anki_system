@@ -1,5 +1,5 @@
 import Card from '@mui/material/Card';
-import { v4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import styled from 'styled-components';
 
 const StyledCard = styled(Card)`
@@ -60,9 +60,9 @@ export default function Note({
         {decodeHtmlEntities(removeCodeTags(removePreTags(front)))
           ?.split('\n')
           .map((line) => (
-            <div key={line}>
+            <div key={uuidv4()}>
               {line.split(' ').map((word, wordIndex) => (
-                <span key={v4()}>
+                <span key={uuidv4()}>
                   {word}
                   {wordIndex !== line.split(' ').length - 1 && '\u00A0'}
                 </span>
