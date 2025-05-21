@@ -29,12 +29,16 @@ const StyledLink = styled(Link)`
 `;
 
 export default function AllDecks() {
-  const { data: decks, mutate } = useSWR('/decks', fetchAllDecks);
+  const { data: decks, mutate, isLoading } = useSWR('/decks', fetchAllDecks);
 
   useEffect(() => {
     mutate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  if (isLoading) {
+    return <div>読み込み中...</div>;
+  }
 
   return (
     <>
