@@ -1,5 +1,21 @@
 import Card from '@mui/material/Card';
-import { v4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
+import styled from 'styled-components';
+
+const StyledCard = styled(Card)`
+  cursor: pointer;
+  width: 90%;
+  font-size: 1.2rem;
+  box-shadow: 0 0 0px 0 rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  margin: 5px;
+  border-radius: 5px;
+  border: 1px solid #000;
+  &:hover {
+    background-color: #f0f0f0;
+    transition: background-color 0.3s ease;
+  }
+`;
 
 type props = {
   noteId: string;
@@ -26,34 +42,15 @@ function removePreTags(str: string) {
   return str.replace(/<pre>|<\/pre>/g, '');
 }
 
-/**
- * コードの言語を取得する
- * @param text テキスト
- * @returns コードの言語
- */
-function getCodeLanguage(text: string) {
-  return text.match(/<code class="language-(.*)">/)?.[1];
-}
-
 export default function Note({
   noteId,
   front,
   setClickedNoteId,
   setIsOpen,
 }: props) {
-  const codeLanguage = getCodeLanguage(front);
-
   return (
-    <>
-      {codeLanguage && <div>{codeLanguage}</div>}
-      <Card
-        variant="outlined"
-        sx={{
-          cursor: 'pointer',
-          position: 'relative',
-          width: '100%',
-          height: '100%',
-        }}
+    <div style={{ display: 'flex', justifyContent: 'center' }}>
+      <StyledCard
         key={noteId}
         onClick={() => {
           setClickedNoteId(noteId);
@@ -63,16 +60,16 @@ export default function Note({
         {decodeHtmlEntities(removeCodeTags(removePreTags(front)))
           ?.split('\n')
           .map((line) => (
-            <div key={line}>
+            <div key={uuidv4()}>
               {line.split(' ').map((word, wordIndex) => (
-                <span key={v4()}>
+                <span key={uuidv4()}>
                   {word}
                   {wordIndex !== line.split(' ').length - 1 && '\u00A0'}
                 </span>
               ))}
             </div>
           ))}
-      </Card>
-    </>
+      </StyledCard>
+    </div>
   );
 }

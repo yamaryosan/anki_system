@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSnackbar } from 'notistack';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 import DeckSelectBox from './DeckSelectBox';
 
 type props = {
@@ -95,25 +98,56 @@ export default function ImportPortal({ onClose }: props) {
 
   return (
     <div
+      ref={modalRef}
       style={{
         position: 'fixed',
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
+        zIndex: 1000,
+        backgroundColor: 'white',
+        padding: '10px',
+        borderRadius: '10px',
+        width: '60%',
+        maxWidth: '600px',
+        minWidth: '300px',
+        height: '40%',
+        minHeight: '300px',
+        maxHeight: '600px',
+        boxShadow: '0 0 10px 0 rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
       }}
     >
-      <div ref={modalRef}>
+      <IconButton
+        onClick={onClose}
+        style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          border: 'none',
+          background: 'transparent',
+          fontSize: '24px',
+          cursor: 'pointer',
+        }}
+        aria-label="モーダルを閉じる"
+      >
+        <CloseIcon />
+      </IconButton>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <h3>デッキをインポート</h3>
         <input type="file" accept=".json" />
-        <h4>インポート先</h4>
+        <h4>インポート先のデッキ</h4>
         <DeckSelectBox
           decks={decks}
           selectedDeck={selectedDeck}
           setSelectedDeck={setSelectedDeck}
         />
-        <button type="button" onClick={handleImport}>
+        <Button type="button" variant="contained" onClick={handleImport}>
           インポート
-        </button>
+        </Button>
       </div>
     </div>
   );

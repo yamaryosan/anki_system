@@ -147,14 +147,22 @@ export default function NewNote() {
       ) : (
         <>
           <p>デッキ名: {deckname}</p>
-          <form onSubmit={handleSubmit}>
+          <form
+            onSubmit={handleSubmit}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 10,
+              padding: 2,
+            }}
+          >
             <TextField
               id="surface"
               label={isFrontHighlight ? '表面コード' : '表面文章'}
               name="表面"
               value={noteData.fields.表面.value}
               multiline
-              rows={10}
+              rows={5}
               onChange={handleChange}
             />
             <SwitchCodeAndSentenceButton
@@ -173,7 +181,7 @@ export default function NewNote() {
               name="裏面"
               value={noteData.fields.裏面.value}
               multiline
-              rows={10}
+              rows={5}
               onChange={handleChange}
             />
             <SwitchCodeAndSentenceButton
@@ -192,7 +200,14 @@ export default function NewNote() {
           </form>
         </>
       )}
-      <Link to={`/decks/${deckname}`}>戻る</Link>
+      <Button
+        variant="contained"
+        color="primary"
+        component={Link}
+        to={`/decks/${deckname}`}
+      >
+        戻る
+      </Button>
     </div>
   );
 }

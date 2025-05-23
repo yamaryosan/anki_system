@@ -37,7 +37,7 @@ export default function DeleteConfirmPortal({
   };
 
   return (
-    <Dialog open={isOpen} onClose={onClose}>
+    <Dialog open={isOpen} onClose={onClose} id="delete-confirm-portal">
       <DialogContent>
         <DialogContentText>このノートを削除しますか？</DialogContentText>
       </DialogContent>

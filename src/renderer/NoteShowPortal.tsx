@@ -1,6 +1,7 @@
-import { Card, TextField, Button } from '@mui/material';
+import { Card, TextField, Button, IconButton } from '@mui/material';
 import { useState, useEffect, useRef, FormEvent } from 'react';
 import { useSnackbar } from 'notistack';
+import CloseIcon from '@mui/icons-material/Close';
 import SwitchCodeAndSentenceButton from './SwitchCodeAndSentenceButton';
 import LanguageSelectBox from './LanguageSelectBox';
 import DeleteConfirmPortal from './DeleteConfirmPortal';
@@ -126,10 +127,12 @@ export default function NoteShowPortal({
   // クリックした場所がモーダルの外側であるか、ESCキーを押されたら閉じる
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        modalRef.current &&
-        !modalRef.current.contains(event.target as Node)
-      ) {
+      const target = event.target as Node;
+
+      const isInsideModal =
+        modalRef.current?.contains(target) ||
+        document.getElementById('delete-confirm-portal')?.contains(target);
+      if (!isInsideModal) {
         onClose();
       }
     };
@@ -242,26 +245,51 @@ export default function NoteShowPortal({
 
   return (
     <Card
-      variant="outlined"
+      ref={modalRef}
       sx={{
         position: 'fixed',
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: '70%',
-        backgroundColor: 'white',
+        width: '90%',
+        height: '80%',
+        minHeight: '600px',
+        padding: 2,
         display: 'flex',
         flexDirection: 'column',
-        gap: 2,
-        padding: 2,
+        backgroundColor: 'white',
+        zIndex: 1,
       }}
     >
-      <Button onClick={handleClose}>閉じる</Button>
-      <form onSubmit={handleSubmit}>
+      <IconButton
+        onClick={handleClose}
+        style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          border: 'none',
+          background: 'transparent',
+          fontSize: '24px',
+          cursor: 'pointer',
+        }}
+        aria-label="モーダルを閉じる"
+      >
+        <CloseIcon />
+      </IconButton>
+      <h3>ノートの編集</h3>
+      <form
+        onSubmit={handleSubmit}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 10,
+          padding: 2,
+        }}
+      >
         <TextField
           label="表面"
           multiline
-          rows={5}
+          rows={3}
           value={decodeHtmlEntities(noteData.fields.表面.value)}
           onChange={(e) =>
             setNoteData({
@@ -286,7 +314,7 @@ export default function NoteShowPortal({
         <TextField
           label="裏面"
           multiline
-          rows={5}
+          rows={3}
           value={decodeHtmlEntities(noteData.fields.裏面.value)}
           onChange={(e) =>
             setNoteData({
@@ -323,7 +351,10 @@ export default function NoteShowPortal({
         <DeleteConfirmPortal
           noteId={noteId}
           isOpen={isDeleteModalOpen}
-          onClose={() => setIsDeleteModalOpen(false)}
+          onClose={() => {
+            setIsDeleteModalOpen(false);
+            onClose();
+          }}
           onSave={onSave}
         />
       )}

@@ -1,16 +1,29 @@
 import { useRef, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 import TextField from '@mui/material/TextField';
 import { useSnackbar } from 'notistack';
+import useSWR from 'swr';
 
 type props = {
   onClose: () => void;
 };
 
+async function fetchAllDecks(): Promise<string[]> {
+  const decks = await window.electron.ipcRenderer.invoke('fetch-all-decks');
+  if (decks === undefined) {
+    throw new Error('Failed to get all decks');
+  }
+  return decks as string[];
+}
+
 export default function NewDeckPortal({ onClose }: props) {
   const [deckName, setDeckName] = useState('');
   const modalRef = useRef<HTMLDivElement>(null);
   const { enqueueSnackbar } = useSnackbar();
+  const { mutate } = useSWR('/decks', fetchAllDecks);
 
   // クリックした場所がモーダルの外側であるか、ESCキーを押されたら閉じる
   useEffect(() => {
@@ -51,31 +64,70 @@ export default function NewDeckPortal({ onClose }: props) {
         variant: 'success',
       });
       onClose();
+      mutate();
     }
   }
 
+  const handleCreateDeck = () => {
+    if (deckName === '') {
+      enqueueSnackbar('デッキ名を入力してください', {
+        variant: 'error',
+      });
+      return;
+    }
+    createDeck();
+  };
+
   return createPortal(
     <div
+      ref={modalRef}
       style={{
         position: 'fixed',
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
+        zIndex: 1000,
+        backgroundColor: 'white',
+        padding: '10px',
+        borderRadius: '10px',
+        width: '60%',
+        maxWidth: '600px',
+        minWidth: '300px',
+        height: '40%',
+        minHeight: '300px',
+        maxHeight: '600px',
+        boxShadow: '0 0 10px 0 rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
       }}
     >
-      <div ref={modalRef}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <IconButton
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            top: '10px',
+            right: '10px',
+            border: 'none',
+            background: 'transparent',
+            fontSize: '24px',
+            cursor: 'pointer',
+          }}
+          aria-label="モーダルを閉じる"
+        >
+          <CloseIcon />
+        </IconButton>
         <h3>新規デッキ作成</h3>
         <TextField
           label="デッキ名"
           value={deckName}
           onChange={(e) => setDeckName(e.target.value)}
         />
-        <button type="button" onClick={createDeck}>
+        <Button type="button" variant="contained" onClick={handleCreateDeck}>
           作成
-        </button>
-        <button type="button" onClick={onClose}>
-          閉じる
-        </button>
+        </Button>
       </div>
     </div>,
     document.body,

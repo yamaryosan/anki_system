@@ -8,13 +8,19 @@ type Props = {
 export default function LanguageSelectBox({ language, setLanguage }: Props) {
   return (
     <div>
-      <select value={language} onChange={(e) => setLanguage(e.target.value)}>
+      <select
+        value={language}
+        onChange={(e) => setLanguage(e.target.value)}
+        style={{
+          width: '100%',
+          height: '40px',
+          borderRadius: '5px',
+          border: '1px solid #ccc',
+          padding: '0 10px',
+        }}
+      >
         <option value="c">C</option>
         <option value="css">CSS</option>
-        <option value="dockerfile">Dockerfile</option>
-        <option value="xml">HTML, XML</option>
-        <option value="javascript">JavaScript</option>
-        <option value="json">JSON</option>
         <option value="nginx">Nginx Config</option>
         <option value="php">PHP</option>
         <option value="pgsql">PostgreSQL</option>
